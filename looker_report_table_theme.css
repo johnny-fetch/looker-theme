@@ -1,16 +1,18 @@
 /*
- * Looker Report Table — Custom Theme
+ * Looker Report Table — Custom Theme v2
  * Compatible with: Looker Report Table (Marketplace Visualization)
  *
  * HOW TO DEPLOY:
- * 1. Upload this file to a public GitHub repo
- * 2. Get the raw file URL from GitHub (click file → Raw → copy URL)
- * 3. Paste the raw URL into https://raw.githack.com/
- * 4. Copy the CDN link it returns
- * 5. In Looker: Edit visualization → Theme → "Load custom CSS from:" → paste CDN link
+ * 1. Replace the existing file in your GitHub repo with this one
+ * 2. Commit the change
+ * 3. Hard refresh Looker (Cmd/Ctrl + Shift + R) to bust the githack cache
  *
- * HOW TO UPDATE:
- * Edit the file on GitHub → commit → hard refresh in Looker (Cmd/Ctrl + Shift + R)
+ * CHANGES IN v2:
+ * - Removed redundant empty first column visual weight
+ * - Status coloring on rate metrics (good / watch / alert)
+ * - Monospace font on number cells only, sans-serif on labels
+ * - Active window columns get teal-dark accent header
+ * - Stronger group separator between category blocks
  */
 
 /* ─── FONTS ──────────────────────────────────────────────────────── */
@@ -19,41 +21,33 @@
 
 /* ─── DESIGN TOKENS ──────────────────────────────────────────────── */
 :root {
-  /* Primary palette — edit these to match your brand */
-  --color-primary:         #1A2A3A;   /* dark navy — headers */
-  --color-primary-mid:     #2C3E50;   /* slightly lighter navy */
-  --color-accent:          #00B2C3;   /* teal — accent stripe */
-  --color-accent-light:    #E6F8FA;   /* teal tint — group rows */
-  --color-accent-mid:      #B3E8ED;   /* teal mid — borders */
+  --color-primary:       #1A2A3A;
+  --color-primary-mid:   #2C3E50;
+  --color-accent:        #00B2C3;
+  --color-accent-dark:   #0A7B87;
+  --color-accent-light:  #E6F8FA;
+  --color-accent-mid:    #B3E8ED;
 
-  /* Status palette */
-  --color-success:         #1E8E3E;
-  --color-success-bg:      #E6F4EA;
-  --color-warning:         #E37400;
-  --color-warning-bg:      #FEF3E2;
-  --color-danger:          #D93025;
-  --color-danger-bg:       #FCE8E6;
+  --color-success:       #1E8E3E;
+  --color-warning:       #E37400;
+  --color-danger:        #D93025;
 
-  /* Neutrals */
-  --color-bg:              #FFFFFF;
-  --color-bg-stripe:       #F7FAFB;
-  --color-bg-hover:        #EBF6F8;
-  --color-bg-total:        #F0F8F9;
-  --color-border:          #DDE8EA;
-  --color-border-strong:   #B0CFD4;
-  --color-text:            #1A2A3A;
-  --color-text-secondary:  #4A5568;
+  --color-bg:            #FFFFFF;
+  --color-bg-stripe:     #F7FAFB;
+  --color-bg-hover:      #EBF6F8;
+  --color-bg-total:      #F0F8F9;
+  --color-border:        #DDE8EA;
+  --color-border-strong: #B0CFD4;
+  --color-text:          #1A2A3A;
+  --color-text-label:    #4A5568;
 
-  /* Typography */
-  --font-ui:               'IBM Plex Sans', system-ui, sans-serif;
-  --font-data:             'IBM Plex Mono', 'Courier New', monospace;
+  /* IMPROVEMENT 3: two fonts — one for labels, one for numbers */
+  --font-ui:             'IBM Plex Sans', system-ui, sans-serif;
+  --font-data:           'IBM Plex Mono', 'Courier New', monospace;
 
-  /* Spacing */
-  --pad-v:                 7px;
-  --pad-h:                 12px;
-  --pad-label:             28px;
-  --header-height:         36px;
-  --radius:                6px;
+  --pad-v:               7px;
+  --pad-h:               12px;
+  --radius:              6px;
 }
 
 
@@ -61,55 +55,68 @@
 .report-table-vis,
 .report-table-container {
   font-family: var(--font-ui);
-  font-size: 13px;
-  color: var(--color-text);
-  background: var(--color-bg);
+  font-size:   13px;
+  color:       var(--color-text);
+  background:  var(--color-bg);
   border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow:    hidden;
+  border:      1px solid var(--color-border);
+  box-shadow:  0 1px 4px rgba(0,0,0,0.06);
 }
 
-
-/* ─── TABLE BASE ─────────────────────────────────────────────────── */
 table {
-  width: 100%;
+  width:           100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout:    fixed;
 }
 
 
-/* ─── COLUMN HEADERS (pivot values: top row) ─────────────────────── */
+/* ─── IMPROVEMENT 4: COLUMN HEADERS ─────────────────────────────── */
+/*
+ * Base:    dark navy for all headers
+ * Active windows (cols 2-4): teal-dark accent — visually distinct from closed
+ * Total:   bright teal — clearly the summary column
+ * Label:   slightly lighter, left-aligned, no decoration
+ *
+ * Note: if your windows vary in number, adjust nth-child selectors below
+ * to match however many active window columns you have (typically 3).
+ */
+
 thead tr:first-child th,
-.header-row th,
 th.pivot-header {
-  background:       var(--color-primary) !important;
-  color:            #FFFFFF !important;
-  font-family:      var(--font-ui);
-  font-weight:      600;
-  font-size:        11px;
-  letter-spacing:   0.05em;
-  text-transform:   uppercase;
-  padding:          var(--pad-v) var(--pad-h);
-  height:           var(--header-height);
-  border-bottom:    2px solid var(--color-accent);
-  text-align:       center;
-  white-space:      nowrap;
+  background:    var(--color-primary) !important;
+  color:         #FFFFFF !important;
+  font-family:   var(--font-ui);
+  font-weight:   600;
+  font-size:     11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding:       8px var(--pad-h);
+  border-bottom: 2px solid var(--color-accent);
+  text-align:    center;
+  white-space:   nowrap;
 }
 
-/* First header cell — row label column */
+/* IMPROVEMENT 1: Label column header — minimal, de-emphasised */
 thead tr:first-child th:first-child,
-th.pivot-header:first-child,
 th.row-header {
   background:   var(--color-primary-mid) !important;
   text-align:   left;
-  padding-left: 16px;
-  min-width:    160px;
+  padding-left: 14px;
+  min-width:    130px;
+  max-width:    200px;
 }
 
-/* TOTAL column header */
+/* IMPROVEMENT 4: Active window columns get the teal-dark accent */
+thead tr:first-child th:nth-child(2),
+thead tr:first-child th:nth-child(3),
+thead tr:first-child th:nth-child(4) {
+  background: var(--color-accent-dark) !important;
+}
+
+/* Total column — bright teal, boldest weight */
 thead tr:first-child th:last-child,
-th.pivot-header.total-column {
+th.total-column {
   background:  var(--color-accent) !important;
   color:       #FFFFFF !important;
   font-weight: 700;
@@ -117,30 +124,39 @@ th.pivot-header.total-column {
 
 
 /* ─── GROUP / CATEGORY HEADER ROWS ──────────────────────────────── */
-/* These are the parent row labels that group sets of metric rows    */
+/*
+ * These are the parent rows that name a group of metric rows below them
+ * (e.g. a warehouse, a region, a category).
+ * IMPROVEMENT 1: strong top border creates a clear break between groups
+ */
 tr.group-header td,
 td.group-label {
   background:     var(--color-accent-light) !important;
   color:          var(--color-primary) !important;
   font-family:    var(--font-ui);
   font-weight:    700;
-  font-size:      12px;
-  letter-spacing: 0.06em;
+  font-size:      11px;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  padding:        9px var(--pad-h) 9px 16px;
+  padding:        9px var(--pad-h) 9px 14px;
   border-top:     2px solid var(--color-accent-mid);
   border-bottom:  1px solid var(--color-border);
 }
 
 
-/* ─── ROW LABEL CELLS (first column, metric names) ───────────────── */
+/* ─── IMPROVEMENT 1 + 3: ROW LABEL CELLS ────────────────────────── */
+/*
+ * The first column contains text labels, not numbers.
+ * → UI font (sans-serif), muted color, indented
+ * → NOT monospace — monospace is only for digits
+ */
 td.row-label,
 td:first-child {
   font-family:  var(--font-ui);
-  font-weight:  500;
+  font-weight:  400;
   font-size:    12.5px;
-  color:        var(--color-text-secondary);
-  padding:      var(--pad-v) var(--pad-h) var(--pad-v) var(--pad-label);
+  color:        var(--color-text-label);
+  padding:      var(--pad-v) var(--pad-h) var(--pad-v) 22px;
   background:   var(--color-bg);
   border-right: 1px solid var(--color-border);
   text-align:   left;
@@ -148,87 +164,91 @@ td:first-child {
 }
 
 
-/* ─── DATA CELLS ─────────────────────────────────────────────────── */
+/* ─── IMPROVEMENT 3: DATA CELLS — MONOSPACE FOR DIGIT ALIGNMENT ──── */
+/*
+ * Monospace ensures digits stack vertically in each column.
+ * Scanning 7.8% / 13.5% / 1.7% is fast when decimal points align.
+ * Proportional fonts cause the digits to drift — makes comparison harder.
+ */
 td {
-  font-family:      var(--font-data);
-  font-size:        13px;
-  font-weight:      400;
-  text-align:       right;
-  padding:          var(--pad-v) var(--pad-h);
-  border-bottom:    1px solid var(--color-border);
-  border-right:     1px solid rgba(0, 0, 0, 0.04);
-  color:            var(--color-text);
-  background:       var(--color-bg);
-  vertical-align:   middle;
-  transition:       background 0.1s ease;
+  font-family:    var(--font-data);
+  font-size:      12.5px;
+  font-weight:    400;
+  text-align:     right;
+  padding:        var(--pad-v) var(--pad-h);
+  border-bottom:  1px solid var(--color-border);
+  border-right:   1px solid rgba(0,0,0,0.04);
+  color:          var(--color-text);
+  background:     var(--color-bg);
+  vertical-align: middle;
+  transition:     background 0.1s ease;
 }
 
-/* Alternating row stripe */
-tr:nth-child(even) td {
+/* Alternating stripe within a group */
+tr:nth-child(even):not(.group-header) td {
   background: var(--color-bg-stripe);
 }
 
-/* Hover */
+/* Hover highlight */
 tr:hover td {
   background: var(--color-bg-hover) !important;
 }
 
-/* TOTAL / rightmost column */
+/* Total column */
 td:last-child {
-  background:   #F0F8F9 !important;
-  font-weight:  600;
-  border-left:  2px solid var(--color-accent-mid);
+  background:  var(--color-bg-total) !important;
+  font-weight: 500;
+  border-left: 2px solid var(--color-accent-mid);
 }
 
-/* Last metric row in a group — strong bottom separator */
+/* IMPROVEMENT 1: Strong bottom border closes each group block */
 tr.group-last td {
   border-bottom: 2px solid var(--color-border-strong) !important;
 }
 
 
-/* ─── STATUS-BASED VALUE COLORING ────────────────────────────────── */
+/* ─── IMPROVEMENT 2: STATUS COLORING VIA data-status ATTRIBUTE ───── */
 /*
- * Applied via Looker's html:{} measure property.
- * Inject a <span data-status="..."> wrapper around your rendered_value.
- * See the companion html snippets file for LookML examples.
+ * Pair these with LookML html:{} blocks on your measures.
+ * Wrap rendered_value in <span data-status="good|watch|alert">
+ *
+ * Rate metrics where HIGHER is better (OTD, fill rate):
+ *   good   = at or above target (e.g. ≥ 98%)
+ *   watch  = approaching threshold (e.g. 95-97%)
+ *   alert  = below threshold (e.g. < 95%)
+ *
+ * Rate metrics where LOWER is better (cancel rate, reschedule rate):
+ *   good   = value is LOW
+ *   watch  = value is rising
+ *   alert  = value is HIGH
+ *
+ * Throughput metrics (PPH — higher is better):
+ *   use data-level="high|normal|low" instead
  */
 
-/* Rate metrics — good / watch / alert */
-[data-status="good"]      { color: var(--color-success);    font-weight: 600; }
-[data-status="watch"]     { color: var(--color-warning);    font-weight: 600; }
-[data-status="alert"]     {
-  color:      var(--color-danger) !important;
-  font-weight: 700;
-  background: var(--color-danger-bg) !important;
-  display: block;
-  padding: 2px 4px;
-  border-radius: 3px;
-}
+[data-status="good"]  { color: var(--color-success) !important; font-weight: 500; }
+[data-status="watch"] { color: var(--color-warning) !important; font-weight: 500; }
+[data-status="alert"] { color: var(--color-danger)  !important; font-weight: 600; }
 
-/* Volume / count metrics — high / normal / low */
-[data-level="high"]   { color: var(--color-success); font-weight: 600; }
+/* Count action items: > 0 = needs attention, 0 = clear */
+[data-alert="true"]   { color: var(--color-danger)  !important; font-weight: 600; }
+[data-alert="none"]   { color: var(--color-success); }
+
+/* Throughput metrics */
+[data-level="high"]   { color: var(--color-success); font-weight: 500; }
 [data-level="normal"] { color: var(--color-text); }
-[data-level="low"]    { color: var(--color-warning); font-weight: 600; }
-
-/* Exception / action items — needs attention */
-[data-alert="true"] {
-  color:       var(--color-danger) !important;
-  font-weight: 700;
-}
-[data-alert="none"] {
-  color: var(--color-success);
-}
+[data-level="low"]    { color: var(--color-warning); font-weight: 500; }
 
 
 /* ─── SUBTOTALS / FOOTER ─────────────────────────────────────────── */
 tfoot tr td,
 tr.subtotal-row td,
 tr.total-row td {
-  background:   var(--color-primary) !important;
-  color:        #FFFFFF !important;
-  font-weight:  700;
-  font-family:  var(--font-data);
-  border-top:   2px solid var(--color-accent);
+  background:  var(--color-primary) !important;
+  color:       #FFFFFF !important;
+  font-weight: 600;
+  font-family: var(--font-data);
+  border-top:  2px solid var(--color-accent);
 }
 
 tfoot tr td:first-child,
@@ -237,7 +257,7 @@ tr.total-row td:first-child {
   font-size:      11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding-left:   16px;
+  padding-left:   14px;
 }
 
 
@@ -250,7 +270,7 @@ tr.total-row td:first-child {
   color:         #FFFFFF !important;
   border-radius: 4px !important;
   padding:       6px 10px !important;
-  box-shadow:    0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow:    0 2px 8px rgba(0,0,0,0.2) !important;
   border:        none !important;
 }
 
@@ -269,11 +289,6 @@ tr.total-row td:first-child {
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  td, th {
-    font-size: 11px;
-    padding:   5px 8px;
-  }
-  td:first-child {
-    padding-left: 12px;
-  }
+  td, th { font-size: 11px; padding: 5px 8px; }
+  td:first-child { padding-left: 10px; }
 }
