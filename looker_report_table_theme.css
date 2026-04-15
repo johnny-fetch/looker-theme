@@ -1,0 +1,279 @@
+/*
+ * Looker Report Table — Custom Theme
+ * Compatible with: Looker Report Table (Marketplace Visualization)
+ *
+ * HOW TO DEPLOY:
+ * 1. Upload this file to a public GitHub repo
+ * 2. Get the raw file URL from GitHub (click file → Raw → copy URL)
+ * 3. Paste the raw URL into https://raw.githack.com/
+ * 4. Copy the CDN link it returns
+ * 5. In Looker: Edit visualization → Theme → "Load custom CSS from:" → paste CDN link
+ *
+ * HOW TO UPDATE:
+ * Edit the file on GitHub → commit → hard refresh in Looker (Cmd/Ctrl + Shift + R)
+ */
+
+/* ─── FONTS ──────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────── */
+:root {
+  /* Primary palette — edit these to match your brand */
+  --color-primary:         #1A2A3A;   /* dark navy — headers */
+  --color-primary-mid:     #2C3E50;   /* slightly lighter navy */
+  --color-accent:          #00B2C3;   /* teal — accent stripe */
+  --color-accent-light:    #E6F8FA;   /* teal tint — group rows */
+  --color-accent-mid:      #B3E8ED;   /* teal mid — borders */
+
+  /* Status palette */
+  --color-success:         #1E8E3E;
+  --color-success-bg:      #E6F4EA;
+  --color-warning:         #E37400;
+  --color-warning-bg:      #FEF3E2;
+  --color-danger:          #D93025;
+  --color-danger-bg:       #FCE8E6;
+
+  /* Neutrals */
+  --color-bg:              #FFFFFF;
+  --color-bg-stripe:       #F7FAFB;
+  --color-bg-hover:        #EBF6F8;
+  --color-bg-total:        #F0F8F9;
+  --color-border:          #DDE8EA;
+  --color-border-strong:   #B0CFD4;
+  --color-text:            #1A2A3A;
+  --color-text-secondary:  #4A5568;
+
+  /* Typography */
+  --font-ui:               'IBM Plex Sans', system-ui, sans-serif;
+  --font-data:             'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --pad-v:                 7px;
+  --pad-h:                 12px;
+  --pad-label:             28px;
+  --header-height:         36px;
+  --radius:                6px;
+}
+
+
+/* ─── OUTER WRAPPER ──────────────────────────────────────────────── */
+.report-table-vis,
+.report-table-container {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+
+/* ─── TABLE BASE ─────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+
+/* ─── COLUMN HEADERS (pivot values: top row) ─────────────────────── */
+thead tr:first-child th,
+.header-row th,
+th.pivot-header {
+  background:       var(--color-primary) !important;
+  color:            #FFFFFF !important;
+  font-family:      var(--font-ui);
+  font-weight:      600;
+  font-size:        11px;
+  letter-spacing:   0.05em;
+  text-transform:   uppercase;
+  padding:          var(--pad-v) var(--pad-h);
+  height:           var(--header-height);
+  border-bottom:    2px solid var(--color-accent);
+  text-align:       center;
+  white-space:      nowrap;
+}
+
+/* First header cell — row label column */
+thead tr:first-child th:first-child,
+th.pivot-header:first-child,
+th.row-header {
+  background:   var(--color-primary-mid) !important;
+  text-align:   left;
+  padding-left: 16px;
+  min-width:    160px;
+}
+
+/* TOTAL column header */
+thead tr:first-child th:last-child,
+th.pivot-header.total-column {
+  background:  var(--color-accent) !important;
+  color:       #FFFFFF !important;
+  font-weight: 700;
+}
+
+
+/* ─── GROUP / CATEGORY HEADER ROWS ──────────────────────────────── */
+/* These are the parent row labels that group sets of metric rows    */
+tr.group-header td,
+td.group-label {
+  background:     var(--color-accent-light) !important;
+  color:          var(--color-primary) !important;
+  font-family:    var(--font-ui);
+  font-weight:    700;
+  font-size:      12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding:        9px var(--pad-h) 9px 16px;
+  border-top:     2px solid var(--color-accent-mid);
+  border-bottom:  1px solid var(--color-border);
+}
+
+
+/* ─── ROW LABEL CELLS (first column, metric names) ───────────────── */
+td.row-label,
+td:first-child {
+  font-family:  var(--font-ui);
+  font-weight:  500;
+  font-size:    12.5px;
+  color:        var(--color-text-secondary);
+  padding:      var(--pad-v) var(--pad-h) var(--pad-v) var(--pad-label);
+  background:   var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  text-align:   left;
+  white-space:  nowrap;
+}
+
+
+/* ─── DATA CELLS ─────────────────────────────────────────────────── */
+td {
+  font-family:      var(--font-data);
+  font-size:        13px;
+  font-weight:      400;
+  text-align:       right;
+  padding:          var(--pad-v) var(--pad-h);
+  border-bottom:    1px solid var(--color-border);
+  border-right:     1px solid rgba(0, 0, 0, 0.04);
+  color:            var(--color-text);
+  background:       var(--color-bg);
+  vertical-align:   middle;
+  transition:       background 0.1s ease;
+}
+
+/* Alternating row stripe */
+tr:nth-child(even) td {
+  background: var(--color-bg-stripe);
+}
+
+/* Hover */
+tr:hover td {
+  background: var(--color-bg-hover) !important;
+}
+
+/* TOTAL / rightmost column */
+td:last-child {
+  background:   #F0F8F9 !important;
+  font-weight:  600;
+  border-left:  2px solid var(--color-accent-mid);
+}
+
+/* Last metric row in a group — strong bottom separator */
+tr.group-last td {
+  border-bottom: 2px solid var(--color-border-strong) !important;
+}
+
+
+/* ─── STATUS-BASED VALUE COLORING ────────────────────────────────── */
+/*
+ * Applied via Looker's html:{} measure property.
+ * Inject a <span data-status="..."> wrapper around your rendered_value.
+ * See the companion html snippets file for LookML examples.
+ */
+
+/* Rate metrics — good / watch / alert */
+[data-status="good"]      { color: var(--color-success);    font-weight: 600; }
+[data-status="watch"]     { color: var(--color-warning);    font-weight: 600; }
+[data-status="alert"]     {
+  color:      var(--color-danger) !important;
+  font-weight: 700;
+  background: var(--color-danger-bg) !important;
+  display: block;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* Volume / count metrics — high / normal / low */
+[data-level="high"]   { color: var(--color-success); font-weight: 600; }
+[data-level="normal"] { color: var(--color-text); }
+[data-level="low"]    { color: var(--color-warning); font-weight: 600; }
+
+/* Exception / action items — needs attention */
+[data-alert="true"] {
+  color:       var(--color-danger) !important;
+  font-weight: 700;
+}
+[data-alert="none"] {
+  color: var(--color-success);
+}
+
+
+/* ─── SUBTOTALS / FOOTER ─────────────────────────────────────────── */
+tfoot tr td,
+tr.subtotal-row td,
+tr.total-row td {
+  background:   var(--color-primary) !important;
+  color:        #FFFFFF !important;
+  font-weight:  700;
+  font-family:  var(--font-data);
+  border-top:   2px solid var(--color-accent);
+}
+
+tfoot tr td:first-child,
+tr.total-row td:first-child {
+  font-family:    var(--font-ui);
+  font-size:      11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-left:   16px;
+}
+
+
+/* ─── TOOLTIP ────────────────────────────────────────────────────── */
+.report-table-tooltip,
+.vis-tooltip {
+  font-family:   var(--font-ui) !important;
+  font-size:     12px !important;
+  background:    var(--color-primary) !important;
+  color:         #FFFFFF !important;
+  border-radius: 4px !important;
+  padding:       6px 10px !important;
+  box-shadow:    0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  border:        none !important;
+}
+
+
+/* ─── SCROLLBAR ──────────────────────────────────────────────────── */
+.report-table-container::-webkit-scrollbar       { height: 6px; width: 6px; }
+.report-table-container::-webkit-scrollbar-track { background: var(--color-bg-stripe); }
+.report-table-container::-webkit-scrollbar-thumb {
+  background:    var(--color-accent-mid);
+  border-radius: 3px;
+}
+.report-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  td, th {
+    font-size: 11px;
+    padding:   5px 8px;
+  }
+  td:first-child {
+    padding-left: 12px;
+  }
+}
