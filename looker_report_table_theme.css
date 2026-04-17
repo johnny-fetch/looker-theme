@@ -190,9 +190,6 @@ tr:nth-child(even):not(.group-header) td {
 }
 
 /* Hover highlight */
-tr:hover td {
-  background: var(--color-bg-hover) !important;
-}
 
 /* Total column */
 td:last-child {
