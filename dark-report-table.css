@@ -1,260 +1,230 @@
-/* ─── FONTS ──────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
 
 
-/* ─── DESIGN TOKENS ──────────────────────────────────────────────── */
+/* ─── TOKENS ─────────────────────────────────────────────────────── */
 :root {
-  /* Surfaces — three tiers matching Fetch_Dark */
-  --color-bg-page:       #0F1419;  /* dashboard background */
-  --color-bg-tile:       #1A2028;  /* table body — same as Looker tile bg */
-  --color-bg-header:     #0F1419;  /* darker than tile, intentional */
-  --color-bg-stripe:     #1F2630;  /* alternating row */
-  --color-bg-hover:      #243040;
-  --color-bg-total:      #1E2A3D;  /* total column — subtle blue tint */
-  --color-bg-group:      #232B36;  /* group header band */
+  --bg-tile:       #1A2028;
+  --bg-header:     #0F1419;
+  --bg-subheader:  #161C24;
+  --bg-stripe:     #1F2630;
+  --bg-hover:      #243040;
+  --bg-total:      #1E2A3D;
 
-  /* Borders — kept low-contrast to avoid grid noise on dark */
-  --color-border:        #2A3440;
-  --color-border-strong: #3A4A5E;
-  --color-border-accent: #5B9BFF;
+  --border:        #2A3440;
+  --border-strong: #3A4A5E;
 
-  /* Text — three-tier hierarchy from Fetch_Dark */
-  --color-text-primary:  #F5F7FA;  /* titles, headlines */
-  --color-text-body:     #C4CAD3;  /* default cell text */
-  --color-text-muted:    #9BA3AE;  /* row labels, secondary */
-  --color-text-on-blue:  #FFFFFF;
+  --text-primary:  #F5F7FA;
+  --text-body:     #D8DCE3;
+  --text-muted:    #9BA3AE;
 
-  /* Accent — Fetch_Dark key color */
-  --color-accent:        #5B9BFF;
-  --color-accent-dark:   #3D7BD9;
-  --color-accent-soft:   rgba(91, 155, 255, 0.15);
+  --accent:        #5B9BFF;
+  --accent-dark:   #3D7BD9;
 
-  /* Status — desaturated for dark bg legibility */
-  --color-success:       #4ADE80;
-  --color-warning:       #FBBF24;
-  --color-danger:        #F87171;
+  --success:       #4ADE80;
+  --warning:       #FBBF24;
+  --danger:        #F87171;
 
-  /* Type */
-  --font-ui:             'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-data:           'IBM Plex Mono', 'SF Mono', 'Courier New', monospace;
-
-  /* Spacing */
-  --pad-v:               7px;
-  --pad-h:               12px;
-  --radius:              6px;
+  --font-ui:       'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-data:     'IBM Plex Mono', 'SF Mono', monospace;
 }
 
 
-/* ─── OUTER WRAPPER ──────────────────────────────────────────────── */
+/* ─── RESET — kill default browser styling ───────────────────────── */
+.report-table-vis,
+.report-table-vis *,
+.report-table-container,
+.report-table-container * {
+  font-family: var(--font-ui);
+  box-sizing:  border-box;
+}
+
+
+/* ─── WRAPPER ────────────────────────────────────────────────────── */
 .report-table-vis,
 .report-table-container {
-  font-family:   var(--font-ui);
   font-size:     13px;
-  color:         var(--color-text-body);
-  background:    var(--color-bg-tile);
-  border-radius: var(--radius);
-  overflow:      hidden;
-  border:        1px solid var(--color-border);
+  color:         var(--text-body);
+  background:    var(--bg-tile);
+  border-radius: 6px;
+  overflow:      auto;
+  border:        1px solid var(--border);
   box-shadow:    0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 table {
   width:           100%;
   border-collapse: collapse;
-  table-layout:    fixed;
-  background:      var(--color-bg-tile);
+  background:      var(--bg-tile);
 }
 
 
-/* ─── COLUMN HEADERS ─────────────────────────────────────────────── */
+/* ─── ALL HEADERS — base styling ─────────────────────────────────── */
 /*
- * Headers go DARKER than tile bg, not lighter. On dark themes, depth
- * comes from receding planes, not raised ones — flipping the light-mode
- * convention. The accent underline does the visual work of separation.
+ * Catches every <th> at every level. Default browser bold + serif gets
+ * overridden here before more specific rules layer on top.
  */
-thead tr:first-child th,
-th.pivot-header {
-  background:     var(--color-bg-header) !important;
-  color:          var(--color-text-primary) !important;
-  font-family:    var(--font-ui);
-  font-weight:    600;
-  font-size:      11px;
+th {
+  background:     var(--bg-header) !important;
+  color:          var(--text-primary) !important;
+  font-family:    var(--font-ui) !important;
+  font-weight:    600 !important;
+  font-size:      11px !important;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding:        9px var(--pad-h);
-  border-bottom:  2px solid var(--color-accent);
-  text-align:     center;
+  padding:        9px 12px !important;
+  text-align:     center !important;
   white-space:    nowrap;
-}
-
-/* Label column header — de-emphasised, left-aligned */
-thead tr:first-child th:first-child,
-th.row-header {
-  background:   var(--color-bg-header) !important;
-  color:        var(--color-text-muted) !important;
-  text-align:   left;
-  padding-left: 14px;
-  min-width:    130px;
-  max-width:    200px;
-  border-bottom-color: var(--color-border-strong);
-}
-
-/* Active window columns — subtle accent tint to distinguish from closed */
-thead tr:first-child th:nth-child(2),
-thead tr:first-child th:nth-child(3),
-thead tr:first-child th:nth-child(4) {
-  background: linear-gradient(
-    to bottom,
-    var(--color-bg-header) 0%,
-    var(--color-bg-header) 70%,
-    var(--color-accent-soft) 100%
-  ) !important;
-  border-bottom-color: var(--color-accent);
-}
-
-/* Total column — boldest, key-color underline */
-thead tr:first-child th:last-child,
-th.total-column {
-  background:    var(--color-bg-total) !important;
-  color:         var(--color-text-primary) !important;
-  font-weight:   700;
-  border-bottom: 2px solid var(--color-accent) !important;
-  border-left:   1px solid var(--color-border-strong);
+  border-bottom:  1px solid var(--border) !important;
 }
 
 
-/* ─── GROUP / CATEGORY HEADER ROWS ──────────────────────────────── */
-tr.group-header td,
-td.group-label {
-  background:     var(--color-bg-group) !important;
-  color:          var(--color-text-primary) !important;
-  font-family:    var(--font-ui);
-  font-weight:    600;
-  font-size:      11px;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  padding:        9px var(--pad-h) 9px 14px;
-  border-top:     2px solid var(--color-accent);
-  border-bottom:  1px solid var(--color-border);
+/* ─── TOP HEADER ROW — window labels (13-16, 14-17, etc.) ────────── */
+thead tr:first-child th {
+  background:     var(--bg-header) !important;
+  color:          var(--text-primary) !important;
+  font-size:      12px !important;
+  font-weight:    600 !important;
+  border-bottom:  2px solid var(--accent) !important;
+  letter-spacing: 0.04em;
 }
 
 
-/* ─── ROW LABEL CELLS ───────────────────────────────────────────── */
+/* ─── SECOND HEADER ROW — measure names (the "Packages per Hour..." row) ─── */
 /*
- * UI font, muted color, indented. Never monospace —
- * monospace is only for digits.
+ * This is the row that was rendering as dark serif on dark — the pivot
+ * sub-header. Now: small, muted, sans-serif, lower contrast than the
+ * window labels above so the eye lands on the windows first.
  */
-td.row-label,
-td:first-child {
-  font-family:  var(--font-ui);
-  font-weight:  400;
-  font-size:    12.5px;
-  color:        var(--color-text-muted);
-  padding:      var(--pad-v) var(--pad-h) var(--pad-v) 22px;
-  background:   var(--color-bg-tile);
-  border-right: 1px solid var(--color-border);
-  text-align:   left;
-  white-space:  nowrap;
+thead tr:nth-child(2) th,
+thead tr:not(:first-child) th {
+  background:     var(--bg-subheader) !important;
+  color:          var(--text-muted) !important;
+  font-family:    var(--font-ui) !important;
+  font-weight:    500 !important;
+  font-size:      10px !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding:        6px 12px !important;
+  border-bottom:  1px solid var(--border) !important;
 }
 
 
-/* ─── DATA CELLS — MONOSPACE FOR DIGIT ALIGNMENT ─────────────────── */
+/* ─── LABEL COLUMN HEADER ────────────────────────────────────────── */
+thead tr:first-child th:first-child {
+  text-align:   left !important;
+  padding-left: 14px !important;
+  color:        var(--text-muted) !important;
+}
+
+thead tr:not(:first-child) th:first-child {
+  text-align:   left !important;
+  padding-left: 14px !important;
+}
+
+
+/* ─── TOTAL COLUMN HEADER — accent tint ──────────────────────────── */
+thead tr th:last-child {
+  background:    var(--bg-total) !important;
+  color:         var(--text-primary) !important;
+  font-weight:   700 !important;
+  border-left:   1px solid var(--border-strong) !important;
+}
+
+
+/* ─── BODY CELLS ─────────────────────────────────────────────────── */
 td {
-  font-family:    var(--font-data);
+  font-family:    var(--font-data) !important;
   font-size:      12.5px;
   font-weight:    400;
   text-align:     right;
-  padding:        var(--pad-v) var(--pad-h);
-  border-bottom:  1px solid var(--color-border);
-  border-right:   1px solid rgba(255, 255, 255, 0.02);
-  color:          var(--color-text-body);
-  background:     var(--color-bg-tile);
+  padding:        8px 12px;
+  border-bottom:  1px solid var(--border);
+  color:          var(--text-body);
+  background:     var(--bg-tile);
   vertical-align: middle;
-  transition:     background 0.1s ease;
 }
 
-/* Alternating stripe — very subtle on dark */
-tr:nth-child(even):not(.group-header) td {
-  background: var(--color-bg-stripe);
-}
-
-/* Hover highlight — gentle blue lift */
-tbody tr:hover td:not(:last-child) {
-  background: var(--color-bg-hover) !important;
-}
-
-/* Total column — blue-tinted, bolder */
-td:last-child {
-  background:   var(--color-bg-total) !important;
-  color:        var(--color-text-primary) !important;
+/* First column = label (text, not numbers) */
+td:first-child {
+  font-family:  var(--font-ui) !important;
   font-weight:  500;
-  border-left:  2px solid var(--color-accent);
+  color:        var(--text-muted);
+  text-align:   left;
+  padding-left: 16px;
+  border-right: 1px solid var(--border);
 }
 
-/* Strong bottom border closes each group block */
-tr.group-last td {
-  border-bottom: 2px solid var(--color-border-strong) !important;
+/* Alternating stripe */
+tbody tr:nth-child(even) td {
+  background: var(--bg-stripe);
 }
 
+/* Hover */
+tbody tr:hover td {
+  background: var(--bg-hover) !important;
+}
 
-/* ─── STATUS COLORING VIA data-status ATTRIBUTE ──────────────────── */
-/*
- * Same LookML pattern as light theme — wrap rendered_value in
- * <span data-status="good|watch|alert"> from your html:{} blocks.
- *
- * Colors are desaturated vs. light theme because pure greens/reds
- * vibrate harshly on near-black backgrounds. These tones sit calmly
- * on #1A2028 while still reading as clearly green/yellow/red.
- *
- * Rate metrics where HIGHER is better (OTD, fill rate):
- *   good   = at/above target
- *   watch  = approaching threshold
- *   alert  = below threshold
- *
- * Rate metrics where LOWER is better (cancel rate, reschedule rate):
- *   good = LOW value, alert = HIGH value
- *
- * Throughput metrics (PPH — higher is better):
- *   use data-level="high|normal|low" instead
- */
-
-[data-status="good"]  { color: var(--color-success) !important; font-weight: 500; }
-[data-status="watch"] { color: var(--color-warning) !important; font-weight: 500; }
-[data-status="alert"] { color: var(--color-danger)  !important; font-weight: 600; }
-
-/* Count action items: > 0 = needs attention, 0 = clear */
-[data-alert="true"]   { color: var(--color-danger)  !important; font-weight: 600; }
-[data-alert="none"]   { color: var(--color-success); }
-
-/* Throughput metrics */
-[data-level="high"]   { color: var(--color-success); font-weight: 500; }
-[data-level="normal"] { color: var(--color-text-body); }
-[data-level="low"]    { color: var(--color-warning); font-weight: 500; }
-
-
-/* ─── SUBTOTALS / FOOTER ─────────────────────────────────────────── */
-/*
- * Footer rows get the accent blue background — clearly distinct from
- * data rows. Bold weight, white text for maximum scan-ability.
- */
-tfoot tr td,
-tr.subtotal-row td,
-tr.total-row td {
-  background:  var(--color-accent-dark) !important;
-  color:       var(--color-text-on-blue) !important;
+/* Total column body */
+td:last-child {
+  background:  var(--bg-total) !important;
+  color:       var(--text-primary) !important;
   font-weight: 600;
-  font-family: var(--font-data);
-  border-top:  2px solid var(--color-accent);
+  border-left: 2px solid var(--accent);
+}
+
+
+/* ─── NULL / MISSING VALUES ──────────────────────────────────────── */
+td:empty::before {
+  content: '—';
+  color:   var(--text-muted);
+  opacity: 0.5;
+}
+
+
+/* ─── GROUP HEADER ROWS ──────────────────────────────────────────── */
+tr.group-header td {
+  background:     var(--bg-header) !important;
+  color:          var(--text-primary) !important;
+  font-family:    var(--font-ui) !important;
+  font-weight:    600 !important;
+  font-size:      11px !important;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding:        9px 14px !important;
+  border-top:     2px solid var(--accent) !important;
+}
+
+
+/* ─── STATUS COLORING (LookML html: blocks) ──────────────────────── */
+[data-status="good"]  { color: var(--success) !important; font-weight: 500; }
+[data-status="watch"] { color: var(--warning) !important; font-weight: 500; }
+[data-status="alert"] { color: var(--danger)  !important; font-weight: 600; }
+
+[data-alert="true"]   { color: var(--danger)  !important; font-weight: 600; }
+[data-alert="none"]   { color: var(--success); }
+
+[data-level="high"]   { color: var(--success); font-weight: 500; }
+[data-level="normal"] { color: var(--text-body); }
+[data-level="low"]    { color: var(--warning); font-weight: 500; }
+
+
+/* ─── FOOTER / TOTAL ROWS ────────────────────────────────────────── */
+tfoot tr td,
+tr.total-row td {
+  background:    var(--accent-dark) !important;
+  color:         #FFFFFF !important;
+  font-weight:   600;
+  font-family:   var(--font-data) !important;
+  border-top:    2px solid var(--accent);
   border-bottom: none;
 }
 
 tfoot tr td:first-child,
 tr.total-row td:first-child {
-  font-family:    var(--font-ui);
+  font-family:    var(--font-ui) !important;
   font-size:      11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding-left:   14px;
 }
 
 
@@ -264,8 +234,8 @@ tr.total-row td:first-child {
   font-family:   var(--font-ui) !important;
   font-size:     12px !important;
   background:    #0A0E13 !important;
-  color:         var(--color-text-primary) !important;
-  border:        1px solid var(--color-border-strong) !important;
+  color:         var(--text-primary) !important;
+  border:        1px solid var(--border-strong) !important;
   border-radius: 4px !important;
   padding:       6px 10px !important;
   box-shadow:    0 4px 12px rgba(0, 0, 0, 0.6) !important;
@@ -274,20 +244,18 @@ tr.total-row td:first-child {
 
 /* ─── SCROLLBAR ──────────────────────────────────────────────────── */
 .report-table-container::-webkit-scrollbar       { height: 8px; width: 8px; }
-.report-table-container::-webkit-scrollbar-track {
-  background: var(--color-bg-page);
-}
+.report-table-container::-webkit-scrollbar-track { background: var(--bg-header); }
 .report-table-container::-webkit-scrollbar-thumb {
-  background:    var(--color-border-strong);
+  background:    var(--border-strong);
   border-radius: 4px;
 }
 .report-table-container::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: var(--accent);
 }
 
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  td, th { font-size: 11px; padding: 5px 8px; }
+  td, th { font-size: 11px !important; padding: 5px 8px !important; }
   td:first-child { padding-left: 10px; }
 }
